@@ -9,7 +9,7 @@ Created on Sat Apr  1 16:09:04 2017
 import tensorflow as tf
 import sys
 import cifarInput
-import Model
+import modelNew as Model
 import six
 
 FLAGS = tf.app.flags.FLAGS
@@ -37,11 +37,11 @@ tf.app.flags.DEFINE_integer('totalStep',40000,
                             '# of steps to train a model.')
 tf.app.flags.DEFINE_string('optimizer', 'nag',
                            'the optimizer used in this program.')
-tf.app.flags.DEFINE_float('l2DecayRate', 0.0002,
+tf.app.flags.DEFINE_float('l2DecayRate', 0.0001,
                            'L2 Decay Rate used in this program.')
 tf.app.flags.DEFINE_integer('residualUnits',3,
                             '# of residual units per level.')
-tf.app.flags.DEFINE_integer('initFilters',128,
+tf.app.flags.DEFINE_integer('initFilters',32,
                             '# of filters at the beginning.')
 
 tf.app.flags.DEFINE_boolean('Elu', False,
@@ -74,14 +74,15 @@ def train(dataSet,imageTrain,labelTrain,imageEval,labelEval,optimizer,l2DecayRat
     bestAccuracy=0.0
     evalSummaryWriter=tf.summary.FileWriter(FLAGS.evalSummaryPath)
 
-  paramStats=tf.contrib.tfprof.model_analyzer.print_model_analysis(
+  param_stats = tf.profiler.profile(
       tf.get_default_graph(),
-      tfprof_options=tf.contrib.tfprof.model_analyzer.TRAINABLE_VARS_PARAMS_STAT_OPTIONS)
-  sys.stdout.write('totalParams: %d\n' % paramStats.total_parameters)
+      options=tf.profiler.ProfileOptionBuilder
+          .trainable_variables_parameter())
+  sys.stdout.write('total_params: %d\n' % param_stats.total_parameters)
 
-  tf.contrib.tfprof.model_analyzer.print_model_analysis(
-      tf.get_default_graph(),
-      tfprof_options=tf.contrib.tfprof.model_analyzer.FLOAT_OPS_OPTIONS)
+  tf.profiler.profile(
+    tf.get_default_graph(),
+    options=tf.profiler.ProfileOptionBuilder.float_operation())
 
   loggingHook=tf.train.LoggingTensorHook(
       tensors={'step':modelTrain.globalStep,

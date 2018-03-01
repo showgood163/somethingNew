@@ -356,7 +356,7 @@ class ModelForTheWin(object):
       predictions=tf.argmax(self.predictions,axis=1)
       self.accuracy=tf.reduce_mean(tf.to_float(tf.equal(predictions,truth)))
     with tf.variable_scope('cost'):
-      crossEntropy=tf.nn.softmax_cross_entropy_with_logits(logits=logits,labels=self.label)
+      crossEntropy=tf.nn.softmax_cross_entropy(logits=logits,labels=self.label)
       self.cost=tf.reduce_mean(crossEntropy)
 
   def myModel(self):
@@ -412,7 +412,7 @@ class ModelForTheWin(object):
       self.accuracy=tf.reduce_mean(tf.to_float(tf.equal(predictions,truth)))
 
     with tf.variable_scope('cost'):
-      crossEntropy=tf.nn.softmax_cross_entropy_with_logits(logits=logits,labels=self.label)
+      crossEntropy=tf.nn.softmax_cross_entropy(logits=logits,labels=self.label)
       self.cost=tf.reduce_mean(crossEntropy)
       self.cost+=self.myL2Decay()
 
